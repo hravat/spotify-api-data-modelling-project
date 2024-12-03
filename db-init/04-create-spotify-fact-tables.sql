@@ -1,0 +1,9 @@
+CREATE TABLE spotify_api.FACT_AUDIOBOOK
+(
+
+    ID VARCHAR(100),
+    MARKET_SR_KEY BIGINT
+);
+
+
+
