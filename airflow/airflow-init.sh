@@ -10,6 +10,9 @@ if [[ -z "${AIRFLOW_UID}" ]]; then
     echo
 fi
 
+echo "Using AIRFLOW_UID in AIRFLOW INIT: ${AIRFLOW_UID}"
+
+
 one_meg=1048576
 mem_available=$(( $(getconf _PHYS_PAGES) * $(getconf PAGE_SIZE) / one_meg ))
 cpus_available=$(grep -cE 'cpu[0-9]+' /proc/stat)
@@ -47,6 +50,17 @@ if [[ ${warning_resources} == "true" ]]; then
     echo "   https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#before-you-begin"
     echo
 fi
+
+REQUIRED_PACKAGES="spotipy pydantic pandas sqlalchemy psycopg2"
+for package in $REQUIRED_PACKAGES; do
+    if ! pip show $package > /dev/null 2>&1; then
+        echo "Package $package not found. Installing..."
+        pip install $package
+    else
+        echo "Package $package is already installed."
+    fi
+done
+
 
 mkdir -p /sources/logs /sources/dags /sources/plugins
 chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}

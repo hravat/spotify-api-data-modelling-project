@@ -72,12 +72,16 @@ x-airflow-common:
     # The following line can be used to set a custom config file, stored in the local config folder
     # If you want to use it, outcomment it and replace airflow.cfg with the name of your config file
     # AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+    SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID}
+    SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
   volumes:
-    - ./airflow/dags:/opt/airflow/dags
-    - ./airflow/logs:/opt/airflow/logs
-    - ./airflow/config:/opt/airflow/config
-    - ./airflow/plugins:/opt/airflow/plugins
+    - ./airflow/dags:/opt/airflow/dags:rw
+    - ./airflow/logs:/opt/airflow/logs:rw
+    - ./airflow/config:/opt/airflow/config:rw
+    - ./airflow/plugins:/opt/airflow/plugins:rw
+    - ./airflow/python-scripts:/opt/airflow/python-scripts:rw
     - ./airflow/airflow-init.sh:/opt/airflow/airflow-init.sh
+    - ./airflow/airflow-webserver-init.sh:/opt/airflow/airflow-webserver-init.sh
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -121,7 +125,9 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
-    command: webserver
+    entrypoint: /bin/bash
+    # yamllint disable rule:line-length
+    command: ["/opt/airflow/airflow-webserver-init.sh"]
     ports:
       - "8080:8080"
     healthcheck:
@@ -135,6 +141,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+
+    
 
   airflow-scheduler:
     <<: *airflow-common
