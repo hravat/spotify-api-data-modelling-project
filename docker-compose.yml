@@ -54,8 +54,8 @@ x-airflow-common:
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow_user:airflow_password@postgres_db:5432/airflow_db
-    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow_user:airflow_password@postgres_db:5432/airflow_db
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_db:5432/airflow_db
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_db:5432/airflow_db
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
@@ -74,6 +74,10 @@ x-airflow-common:
     # AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
     SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID}
     SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
+    SPOTIFY_DB_USER: ${SPOTIFY_DB_USER} 
+    SPOTIFY_DB_PASSWORD: ${SPOTIFY_DB_PASSWORD}
+    AIRFLOW_DB_USER: ${AIRFLOW_DB_USER}
+    AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD}        
   volumes:
     - ./airflow/dags:/opt/airflow/dags:rw
     - ./airflow/logs:/opt/airflow/logs:rw
@@ -99,6 +103,8 @@ services:
       POSTGRES_DB: postgres
       SPOTIFY_DB_USER: ${SPOTIFY_DB_USER} 
       SPOTIFY_DB_PASSWORD: ${SPOTIFY_DB_PASSWORD}  
+      AIRFLOW_DB_USER: ${AIRFLOW_DB_USER}
+      AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD}       
     volumes:
       #- postgres-db-volume:/var/lib/postgresql/data
       - ./db-init:/docker-entrypoint-initdb.d/ 
