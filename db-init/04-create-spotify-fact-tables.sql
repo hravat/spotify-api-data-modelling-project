@@ -1,4 +1,4 @@
-CREATE TABLE spotify_api.FACT_AUDIOBOOK
+CREATE TABLE spotify_api_prod.FACT_AUDIOBOOK
 (
 
     ID VARCHAR(100),

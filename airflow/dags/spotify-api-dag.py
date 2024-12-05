@@ -14,7 +14,6 @@ def spotify_api_dag():
     @task.bash
     def get_spotify_api():
         return """
-        #source /home/airflow/.local/bin/activate
         python /opt/airflow/python-scripts/audio_book_api.py
         """
 

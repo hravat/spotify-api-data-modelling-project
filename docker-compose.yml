@@ -92,14 +92,16 @@ x-airflow-common:
 
 services:
   postgres_db:
-    image: postgres:13
+    image: postgres:latest
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+      SPOTIFY_DB_USER: ${SPOTIFY_DB_USER} 
+      SPOTIFY_DB_PASSWORD: ${SPOTIFY_DB_PASSWORD}  
     volumes:
       #- postgres-db-volume:/var/lib/postgresql/data
-      - ./db-init:/docker-entrypoint-initdb.d/
+      - ./db-init:/docker-entrypoint-initdb.d/ 
     ports:
       - "5432:5432"
     healthcheck:
@@ -108,7 +110,9 @@ services:
       retries: 5
       start_period: 5s
     restart: always
-
+    networks:
+      - airflownetwork
+      
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
     # https://redis.io/blog/redis-adopts-dual-source-available-licensing/
@@ -122,6 +126,9 @@ services:
       retries: 50
       start_period: 30s
     restart: always
+    networks:
+      - airflownetwork
+          
 
   airflow-webserver:
     <<: *airflow-common
@@ -141,7 +148,9 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-
+    networks:
+      - airflownetwork
+      
     
 
   airflow-scheduler:
@@ -158,7 +167,9 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-
+    networks:
+      - airflownetwork
+      
   airflow-worker:
     <<: *airflow-common
     command: celery worker
@@ -181,7 +192,9 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-
+    networks:
+      - airflownetwork
+      
   airflow-triggerer:
     <<: *airflow-common
     command: triggerer
@@ -196,6 +209,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - airflownetwork
 
   airflow-init:
     <<: *airflow-common
@@ -214,6 +229,8 @@ services:
     volumes:
       - ./airflow:/sources
       - ./airflow/airflow-init.sh:/opt/airflow/airflow-init.sh
+    networks:
+      - airflownetwork      
 
   airflow-cli:
     <<: *airflow-common
@@ -227,6 +244,8 @@ services:
       - bash
       - -c
       - airflow
+    networks:
+      - airflownetwork
 
   # You can enable flower by adding "--profile flower" option e.g. docker-compose --profile flower up
   # or by explicitly targeted on the command line e.g. docker-compose up flower.
@@ -249,6 +268,9 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - airflownetwork
 
-#volumes:
-#  postgres-db-volume:
+networks:
+  airflownetwork:
+    driver: bridge

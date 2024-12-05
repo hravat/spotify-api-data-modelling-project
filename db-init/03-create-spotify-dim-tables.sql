@@ -1,4 +1,4 @@
-CREATE TABLE spotify_api.DIM_MARKET 
+CREATE TABLE spotify_api_prod.DIM_MARKET 
 (
     MARKET_SR_KEY BIGINT,
     NAME VARCHAR(100),
@@ -18,4 +18,4 @@ CREATE TABLE spotify_api.DIM_MARKET
 );
 
 CREATE UNIQUE INDEX idx_dim_market_unique_columns
-ON spotify_api.dim_market(alpha_2, alpha_3, country_code, iso_3166_2);
+ON spotify_api_prod.dim_market(alpha_2, alpha_3, country_code, iso_3166_2);

@@ -1,4 +1,4 @@
-CREATE TABLE PUBLIC.DIM_MARKET 
+CREATE TABLE spotify_api_prod.DIM_MARKET 
 (
     MARKET_SR_KEY BIGINT,
     NAME VARCHAR(100),
@@ -31,7 +31,7 @@ CREATE SEQUENCE SEQ_MARKET_SR_KEY
 
 insert
 	into
-	public.dim_market
+	spotify_api_prod.dim_market
 (
 		market_sr_key,
 		"name",
@@ -66,7 +66,7 @@ select
 	CURRENT_TIMESTAMP,
 	CURRENT_TIMESTAMP
 from
-	public.dim_market_stg as src
+	spotify_api_stg.dim_market_stg as src
 on
 	conflict (
     alpha_2,
@@ -91,7 +91,7 @@ set
 	intermediate_region_code = EXCLUDED.intermediate_region_code,
 	etl_insert_date = CURRENT_TIMESTAMP;
 
-INSERT INTO public.dim_market (
+INSERT INTO spotify_api_prod.dim_market (
     market_sr_key,
     "name",
     alpha_2,
