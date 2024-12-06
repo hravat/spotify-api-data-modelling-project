@@ -83,9 +83,11 @@ x-airflow-common:
     - ./airflow/logs:/opt/airflow/logs:rw
     - ./airflow/config:/opt/airflow/config:rw
     - ./airflow/plugins:/opt/airflow/plugins:rw
-    - ./airflow/python-scripts:/opt/airflow/python-scripts:rw
+    - ./airflow/python:/opt/airflow/python-scripts:rw
+    - ./airflow/sql:/opt/airflow/sql-scripts:rw    
     - ./airflow/airflow-init.sh:/opt/airflow/airflow-init.sh
     - ./airflow/airflow-webserver-init.sh:/opt/airflow/airflow-webserver-init.sh
+    - ./master-data:/opt/airflow/master-data
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
