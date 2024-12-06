@@ -77,7 +77,7 @@ INSERT INTO spotify_api_prod.dim_market (
     etl_load_date,
     etl_insert_date
 )
-VALUES (
+select
     -1,  -- Special surrogate key indicating missing data
     'UNKNOWN',
     'UNKNOWN',  -- Example country code
@@ -93,7 +93,15 @@ VALUES (
     'Y',  -- Active flag
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
-);    
-
+on
+	conflict (
+    alpha_2,
+    alpha_3,
+    country_code,
+    iso_3166_2
+    ) 
+do 
+UPDATE
+	SET etl_insert_date=CURRENT_TIMESTAMP;
 
 DROP table spotify_api_stg."DIM_MARKET_STG";

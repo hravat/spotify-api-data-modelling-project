@@ -1,7 +1,7 @@
 import sys
 import os 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'python-scripts')))
-import logging
+
 
 from airflow.decorators import task, dag
 from datetime import datetime
@@ -12,17 +12,7 @@ from airflow import settings
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 
 
-logger = logging.getLogger(__name__)
 
-spotify_api_prod = Connection(
-    conn_id='spotify_api_prod',
-    conn_type='postgres',
-    host='postgres_db',
-    login=os.getenv('SPOTIFY_DB_USER'),
-    password=os.getenv('SPOTIFY_DB_PASSWORD'),
-    schema='postgres',
-    port=5432,
-)
 
 
 
@@ -43,7 +33,7 @@ def spotify_api_dag():
     
     
     @task.python
-    def push_data_to_db():
+    def push_audiobook_flat_api_stg():
         # Call the function from audio_book_api.py that pushes data to the database
         spotify_push_api_to_db()
     
@@ -51,9 +41,6 @@ def spotify_api_dag():
     def push_data_to_dim_market_stg():
         # Call the function from audio_book_api.py that pushes data to the database
         dim_market_stg_to_db()
-
-
-       
          
     dim_market_stg_to_prod_task=PostgresOperator(
             task_id='dim_market_stg_to_prod',
@@ -61,15 +48,20 @@ def spotify_api_dag():
             sql='sql-scripts/DimMarket.sql',  # Path to the SQL file
         )
     
+    fact_audio_book_task=PostgresOperator(
+            task_id='fact_audio_book_task',
+            postgres_conn_id='spotify_api_prod',  # Connection ID in Airflow
+            sql='sql-scripts/FactAudioBook.sql',  # Path to the SQL file
+        )
     
     # Define tasks
-    spotify_api_task = push_data_to_db()
+    spotify_api_task = push_audiobook_flat_api_stg()
     dim_market_stg_task = push_data_to_dim_market_stg()
-    log_connection_details_tesk = log_connection_details()
   
     # Execute tasks in parallel
     spotify_api_task  # Runs in parallel
     dim_market_stg_task  >> dim_market_stg_to_prod_task 
+    [spotify_api_task, dim_market_stg_to_prod_task] >> fact_audio_book_task
    
     
 # Instantiate the DAG
