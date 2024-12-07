@@ -279,6 +279,57 @@ services:
     networks:
       - airflownetwork
 
+
+
+#############DATA KITCHEN##############
+
+  engine:
+    image: datakitchen/dataops-testgen:v2
+    container_name: testgen
+    environment: 
+      TESTGEN_USERNAME: postgres
+      TESTGEN_PASSWORD: postgres
+      TG_DECRYPT_SALT: 0c2BOHHcFpxM
+      TG_DECRYPT_PASSWORD: mfzwI3BCQSnV
+      TG_METADATA_DB_HOST: postgres_db
+      TG_TARGET_DB_TRUST_SERVER_CERTIFICATE: yes
+      TG_EXPORT_TO_OBSERVABILITY_VERIFY_SSL: no
+      TG_DOCKER_RELEASE_CHECK_ENABLED: yes
+    volumes:
+      - testgen_data:/var/lib/testgen
+    ports:
+      - 8501:8501
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    networks:
+      - airflownetwork
+
+#  postgres:
+#    image: postgres:14.1-alpine
+#    restart: always
+#    environment:
+#      - POSTGRES_USER=admin
+#      - POSTGRES_PASSWORD=Jus3aBTSji0V
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U admin"]
+#      interval: 8s
+#      timeout: 5s
+#      retries: 3
+#    networks:
+#      - datakitchen
+
+volumes:
+  postgres_data:
+  testgen_data:
+
 networks:
   airflownetwork:
     driver: bridge
+  datakitchen:
+    name: datakitchen-network
+    external: true

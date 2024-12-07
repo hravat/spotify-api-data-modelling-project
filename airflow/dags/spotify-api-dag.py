@@ -12,7 +12,15 @@ from airflow import settings
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 
 
-
+spotify_api_prod = Connection(
+        conn_id='spotify_api_prod',
+        conn_type='postgres',
+        host='postgres_db',  # Replace with your PostgreSQL host
+        schema='postgres',  # Replace with your schema
+        login= os.getenv('SPOTIFY_DB_USER'),  # Replace with your username
+        password=os.getenv('SPOTIFY_DB_PASSWORD'),  # Replace with your password
+        port=5432  # Default Postgres port, adjust if necessary
+    )
 
 
 
