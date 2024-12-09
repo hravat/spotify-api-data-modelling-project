@@ -48,22 +48,22 @@ class FlattenedAuthorResponse(BaseModel):
     id: str
     description: Optional[str] = None
     explicit: Optional[bool] = None
-    author_name: str  # Flattened author name into a separate field  
+    author_name: str  # DIM_PERSON_NAME   
     available_market: Optional[str] = None 
-    copyright_text: Optional[str] = None
-    copyright_type: Optional[str] = None
+    copyright_text: Optional[str] = None # DIM_COPYRIGHT
+    copyright_type: Optional[str] = None # DIM_COPYRIGHT
     html_description: Optional[str] = None
     edition: Optional[str] = None
     spotify_external_url: Optional[str] = None
     href: Optional[str] = None
-    image_url: Optional[str] = None
-    image_height: Optional[int] = None
-    image_width: Optional[int] = None
-    languages: Optional[str] = None
-    media_type: Optional[str] = None
-    book_name: Optional[str] = None
-    narrator_name: Optional[str] = None
-    publisher: Optional[str] = None
+    image_url: Optional[str] = None   #DIM_IMAGE
+    image_height: Optional[int] = None #DIM_IMAGE
+    image_width: Optional[int] = None #DIM_IMAGE
+    languages: Optional[str] = None #DIM_LANGUAGE
+    media_type: Optional[str] = None 
+    book_name: Optional[str] = None 
+    narrator_name: Optional[str] = None # DIM_PERSON_NAME
+    publisher: Optional[str] = None # DIM_PUBLISHER
     book_type: Optional[str] = None
     book_uri: Optional[str] = None
     total_chapters: Optional[int] = None    

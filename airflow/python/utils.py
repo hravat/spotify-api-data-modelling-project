@@ -42,7 +42,7 @@ def df_to_spotify_api_stg(df,table_name):
     try:
         df.to_sql(table_name, 
                   engine, 
-                  if_exists='replace', 
+                  if_exists='append', 
                   index=False,
                   schema='spotify_api_stg')
         print(f"DataFrame successfully written to table '{table_name}'.")
