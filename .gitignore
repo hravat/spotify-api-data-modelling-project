@@ -1,3 +1,8 @@
 airflow/logs/*
 airflow/config/*
 airflow/plugins/*
+airflow/python/share/py4j/*
+airflow/python/py4j/*
+airflow/python/pyspark/*
+airflow/python/pyspark-3.5.3.dist-info/*
+airflow/python/py4j-0.10.9.7.dist-info/*
