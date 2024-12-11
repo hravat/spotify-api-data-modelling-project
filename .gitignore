@@ -1,4 +1,4 @@
 airflow/logs/*
 airflow/config/*
 airflow/plugins/*
-airflow/python-packages
+airflow/python-packages/*
