@@ -49,8 +49,10 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.10.3}
-  # build: .
+  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:latest}
+  build:
+      context: ./DockerAirflow  # Path to the directory containing Dockerfile
+      dockerfile: Dockerfile  # Name of the Dockerfile (if it's named 'Dockerfile')
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -77,18 +79,23 @@ x-airflow-common:
     SPOTIFY_DB_USER: ${SPOTIFY_DB_USER} 
     SPOTIFY_DB_PASSWORD: ${SPOTIFY_DB_PASSWORD}
     AIRFLOW_DB_USER: ${AIRFLOW_DB_USER}
-    AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD}        
+    AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD}
+    AIRFLOW_UID: ${AIRFLOW_UID:-1000}
   volumes:
     - ./airflow/dags:/opt/airflow/dags:rw
     - ./airflow/logs:/opt/airflow/logs:rw
     - ./airflow/config:/opt/airflow/config:rw
     - ./airflow/plugins:/opt/airflow/plugins:rw
     - ./airflow/python:/opt/airflow/python-scripts:rw
-    - ./airflow/sql:/opt/airflow/sql-scripts:rw    
+    - ./airflow/sql:/opt/airflow/sql-scripts:rw
+    - ./airflow/pyspark:/opt/airflow/pyspark-scripts:rw    
     - ./airflow/airflow-init.sh:/opt/airflow/airflow-init.sh
     - ./airflow/airflow-webserver-init.sh:/opt/airflow/airflow-webserver-init.sh
+    - ./airflow/airflow-scheduler-init.sh:/opt/airflow/airflow-scheduler-init.sh
     - ./master-data:/opt/airflow/master-data
-  user: "${AIRFLOW_UID:-50000}:0"
+#    - ./airflow/python-packages:/home/airflow/.local/lib/python3.12/site-packages
+#    - ./airflow/python-packages/pyspark:/home/airflow/tmp/pyspark
+  user: "$AIRFLOW_UID:0"
   depends_on:
     &airflow-common-depends-on
     redis:
@@ -96,7 +103,19 @@ x-airflow-common:
     postgres_db:
       condition: service_healthy
 
+
+#x-common-variables: &common-variables
+#  TESTGEN_USERNAME: admin
+#  TESTGEN_PASSWORD: Wjj0JctzjiBf
+#  TG_DECRYPT_SALT: ZkRrOMS3haRJ
+#  TG_DECRYPT_PASSWORD: F6ToOn3u2Bw9
+#  TG_METADATA_DB_HOST: postgres_db
+#  TG_TARGET_DB_TRUST_SERVER_CERTIFICATE: yes
+#  TG_EXPORT_TO_OBSERVABILITY_VERIFY_SSL: no
+#  TG_DOCKER_RELEASE_CHECK_ENABLED: yes
+
 services:
+
   postgres_db:
     image: postgres:latest
     environment:
@@ -140,13 +159,17 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
-    entrypoint: /bin/bash
+    #entrypoint: /bin/bash
     # yamllint disable rule:line-length
-    command: ["/opt/airflow/airflow-webserver-init.sh"]
+    #command: ["/opt/airflow/airflow-webserver-init.sh"]
+    #build: Dockerfile    
+    #build: .
+    command:
+      webserver
     ports:
-      - "8080:8080"
+      - "8082:8080"
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "--fail", "http://localhost:8082/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -158,12 +181,24 @@ services:
         condition: service_completed_successfully
     networks:
       - airflownetwork
-      
-    
+    environment:
+      AIRFLOW_UID: "${AIRFLOW_UID:-1000}"   
+      AIRFLOW_GID: "0"
+      AIRFLOW_DB_USER: ${AIRFLOW_DB_USER}
+      AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD}
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_db:5432/airflow_db
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres_db:5432/airflow_db
+      AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
 
   airflow-scheduler:
+    #build: Dockerfile  
     <<: *airflow-common
-    command: scheduler
+    #entrypoint: /bin/bash
+    #yamllint disable rule:line-length
+    #command: ["/opt/airflow/airflow-scheduler-init.sh"]
+    command:
+      scheduler
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
       interval: 30s
@@ -202,7 +237,7 @@ services:
         condition: service_completed_successfully
     networks:
       - airflownetwork
-      
+
   airflow-triggerer:
     <<: *airflow-common
     command: triggerer
@@ -221,6 +256,7 @@ services:
       - airflownetwork
 
   airflow-init:
+    #build: Dockerfile  
     <<: *airflow-common
     entrypoint: /bin/bash
     # yamllint disable rule:line-length
@@ -239,7 +275,7 @@ services:
       - ./airflow/airflow-init.sh:/opt/airflow/airflow-init.sh
     networks:
       - airflownetwork      
-
+#
   airflow-cli:
     <<: *airflow-common
     profiles:
@@ -281,20 +317,21 @@ services:
 
 
 
-#############DATA KITCHEN##############
+###############DATA KITCHEN##############
 
   engine:
     image: datakitchen/dataops-testgen:v2
     container_name: testgen
     environment: 
-      TESTGEN_USERNAME: postgres
-      TESTGEN_PASSWORD: postgres
-      TG_DECRYPT_SALT: 0c2BOHHcFpxM
-      TG_DECRYPT_PASSWORD: mfzwI3BCQSnV
+      TESTGEN_USERNAME: admin
+      TESTGEN_PASSWORD: admin@123
+      TG_DECRYPT_SALT: ZkRrOMS3haRJ
+      TG_DECRYPT_PASSWORD: F6ToOn3u2Bw9
       TG_METADATA_DB_HOST: postgres_db
       TG_TARGET_DB_TRUST_SERVER_CERTIFICATE: yes
       TG_EXPORT_TO_OBSERVABILITY_VERIFY_SSL: no
       TG_DOCKER_RELEASE_CHECK_ENABLED: yes
+      TESTGEN_UI_PASSWORD: Wjj0JctzjiBf
     volumes:
       - testgen_data:/var/lib/testgen
     ports:
@@ -307,21 +344,46 @@ services:
     networks:
       - airflownetwork
 
-#  postgres:
-#    image: postgres:14.1-alpine
-#    restart: always
-#    environment:
-#      - POSTGRES_USER=admin
-#      - POSTGRES_PASSWORD=Jus3aBTSji0V
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    healthcheck:
-#      test: ["CMD-SHELL", "pg_isready -U admin"]
-#      interval: 8s
-#      timeout: 5s
-#      retries: 3
-#    networks:
-#      - datakitchen
+##############PYSPARK ##################
+  spark-master:
+    image: bitnami/spark:3.5.3
+    build:
+      context: ./DockerSpark  # Path to the directory containing Dockerfile
+      dockerfile: Dockerfile  # Name of the Dockerfile (if it's named 'Dockerfile')
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=false
+      - SPARK_RPC_ENCRYPTION_ENABLED=false
+      - SPARK_LOCAL_DIRS=/tmp/spark      
+    ports:
+      - "8081:8080"   # Expose Spark UI port
+      - "7077:7077"   # Expose Spark master port for cluster mode
+    volumes:
+      - /tmp/spark:/tmp/spark
+      - ./spark-py4j/py4j:/.local/lib/python3.12/site-packages/py4j
+      - ./spark-py4j/py4j-0.10.9.7.dist-info:/.local/lib/python3.12/site-packages/py4j-0.10.9.7.dist-info
+    networks:
+     - airflownetwork
+      
+
+  spark-worker:
+    image: bitnami/spark:3.5.3
+    build:
+      context: ./DockerSpark  # Path to the directory containing Dockerfile
+      dockerfile: Dockerfile  # Name of the Dockerfile (if it's named 'Dockerfile')
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER=spark://spark-master:7077
+    depends_on:
+      - spark-master
+    networks:
+      - airflownetwork
+    #volumes:
+      #- ./spark-py4j/py4j:/.local/lib/python3.12/site-packages/py4j
+      #- ./spark-py4j/py4j-0.10.9.7.dist-info:/.local/lib/python3.12/site-packages/py4j-0.10.9.7.dist-info
+################################
 
 volumes:
   postgres_data:

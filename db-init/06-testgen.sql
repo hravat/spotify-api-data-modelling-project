@@ -19,7 +19,7 @@ SET row_security = off;
 --
 -- Name: testgen; Type: SCHEMA; Schema: -; Owner: admin
 --
--- Create the database if it doesn't exist
+
 CREATE DATABASE datakitchen;
 CREATE USER admin WITH PASSWORD 'admin@123';
 GRANT ALL PRIVILEGES ON DATABASE datakitchen TO admin;
@@ -400,7 +400,7 @@ CREATE TABLE testgen.auth_users (
     email character varying(120),
     name character varying(120),
     password character varying(120),
-    preauthorized boolean DEFAULT false,
+    preauthorized boolean DEFAULT true,
     role character varying(20),
     CONSTRAINT username_check CHECK (((length((username)::text) >= 4) AND (length((username)::text) <= 20) AND ((username)::text ~ '^[a-zA-Z0-9_]+$'::text)))
 );
@@ -1554,7 +1554,7 @@ ALTER TABLE testgen.working_agg_cat_tests OWNER TO admin;
 --
 
 COPY testgen.auth_users (id, username, email, name, password, preauthorized, role) FROM stdin;
-e32c12e4-c34c-411c-9da1-d0b442ada0b0	admin		admin	$2b$12$pl1bWwMB6HTICioY8OhG4O0N3.nL7JCj2Dd2S8QMn.b3aQUJapsHK	f	admin
+dec82642-b632-4913-ad9c-bbd534e02d03	admin		admin	$2b$12$1TdU4.cHTNjjGgYsdn7R8er4WCPvpnqOaFZjn2qsb5UM3NVfo/iZW	true	admin
 \.
 
 
@@ -1751,7 +1751,7 @@ COPY testgen.cat_test_conditions (id, test_type, sql_flavor, measure, test_opera
 --
 
 COPY testgen.connections (id, project_code, connection_id, sql_flavor, project_host, project_port, project_user, project_db, connection_name, project_pw_encrypted, max_threads, max_query_chars, url, connect_by_url, connect_by_key, private_key, private_key_passphrase) FROM stdin;
-912a3143-dc4a-4a5e-921a-22f06e1606a2	DEFAULT	1	postgresql	postgres	5432	admin	demo_db	default	\\x6c662b4a5a5a4f664f6f4a3458576d636d56484f7973456f525561496871532f515a30766c71526b752b4d3d	4	5000		f	f	\N	\N
+a98ef3ae-a960-4ae6-a99c-d22621da55de	DEFAULT	1	postgresql	postgres	5432	admin	demo_db	default	\\x672b774867582f6c544176667a4b41742f647739356479506a61523052697a3832304d70384c616b6732383d	4	5000		f	f	\N	\N
 \.
 
 
@@ -1874,7 +1874,7 @@ COPY testgen.profiling_runs (id, project_code, connection_id, table_groups_id, p
 --
 
 COPY testgen.projects (id, project_code, project_name, effective_from_date, effective_thru_date, observability_api_key, observability_api_url) FROM stdin;
-2caa78d1-26e2-4afa-9ad8-2eb66c40ad9e	DEFAULT	Demo	2024-12-06	\N		
+2daa3e80-824a-475d-a86a-82c236aa64ee	DEFAULT	Demo	2024-12-14	\N		
 \.
 
 
@@ -2212,7 +2212,7 @@ COPY testgen.test_runs (id, test_suite_id, test_starttime, test_endtime, status,
 --
 
 COPY testgen.test_suites (id, project_code, test_suite, connection_id, table_groups_id, test_suite_description, test_action, severity, export_to_observability, test_suite_schema, component_key, component_type, component_name, last_complete_test_run_id, dq_score_exclude) FROM stdin;
-0faa8b93-fbd6-4e1f-aeaa-0382afe87248	DEFAULT	default-suite-1	1	0ea85e17-acbe-47fe-8394-9970725ad37d	default-suite-1 Test Suite	\N	\N	Y	\N	\N	dataset	\N	\N	f
+1f89b7da-3512-40af-88a6-a530116ccfed	DEFAULT	default-suite-1	1	0ea85e17-acbe-47fe-8394-9970725ad37d	default-suite-1 Test Suite	\N	\N	Y	\N	\N	dataset	\N	\N	f
 \.
 
 

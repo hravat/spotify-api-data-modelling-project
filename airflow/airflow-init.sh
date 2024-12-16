@@ -51,17 +51,20 @@ if [[ ${warning_resources} == "true" ]]; then
     echo
 fi
 
-REQUIRED_PACKAGES="spotipy pydantic pandas sqlalchemy psycopg2"
-for package in $REQUIRED_PACKAGES; do
-    if ! pip show $package > /dev/null 2>&1; then
-        echo "Package $package not found. Installing..."
-        pip install $package
-    else
-        echo "Package $package is already installed."
-    fi
-done
+#REQUIRED_PACKAGES="spotipy pydantic pandas sqlalchemy psycopg2 pyspark"
+#for package in $REQUIRED_PACKAGES; do
+#    if ! pip show $package > /dev/null 2>&1; then
+#        echo "Package $package not found. Installing..."
+#        pip install $package
+#    else
+#        echo "Package $package is already installed."
+#    fi
+#done
 
 
 mkdir -p /sources/logs /sources/dags /sources/plugins
 chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
+chown -R "${AIRFLOW_UID}:0" /home/airflow/.local/lib/python3.12/site-packages/pyspark/bin/spark-submit
+chown -R "${AIRFLOW_UID}:0" /home/airflow/.local/lib/python3.12/site-packages/bin/spark-submit
+
 exec /entrypoint airflow version
