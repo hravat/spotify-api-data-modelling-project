@@ -159,11 +159,9 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
-    #entrypoint: /bin/bash
-    # yamllint disable rule:line-length
-    #command: ["/opt/airflow/airflow-webserver-init.sh"]
-    #build: Dockerfile    
-    #build: .
+#    build:
+#      context: ./DockerAirflow  # Path to the directory containing Dockerfile
+#      dockerfile: Dockerfile 
     command:
       webserver
     ports:
@@ -192,7 +190,9 @@ services:
       AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
 
   airflow-scheduler:
-    #build: Dockerfile  
+#    build:
+#      context: ./DockerAirflow  # Path to the directory containing Dockerfile
+#      dockerfile: Dockerfile 
     <<: *airflow-common
     #entrypoint: /bin/bash
     #yamllint disable rule:line-length
@@ -372,10 +372,12 @@ services:
     build:
       context: ./DockerSpark  # Path to the directory containing Dockerfile
       dockerfile: Dockerfile  # Name of the Dockerfile (if it's named 'Dockerfile')
-    container_name: spark-worker
+#    container_name: spark-worker
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=1              # Sets executor cores
+      - SPARK_WORKER_MEMORY=2g           # Sets executor memory
     depends_on:
       - spark-master
     networks:

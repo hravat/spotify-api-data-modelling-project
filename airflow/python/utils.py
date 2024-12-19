@@ -10,6 +10,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import os
 from sqlalchemy import create_engine
 from pyspark.sql import SparkSession
+import pickle
 
 def spotify_authenticate():
     
@@ -60,4 +61,6 @@ def df_to_spotify_api_stg(df,table_name):
     print('#### PUSHED TO DATABASE #####')
 
     
-    
+def unpickle_data(pickled_data):
+    unpickled_data = pickle.loads(pickled_data)
+    return unpickled_data     

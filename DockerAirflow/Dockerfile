@@ -13,23 +13,23 @@ ENV PATH=$PATH:$JAVA_HOME/bin
 
 USER airflow
 
-RUN pip install spotipy --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install pydantic  --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install pandas  --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install sqlalchemy  --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install psycopg2-binary  --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install apache-airflow-providers-apache-spark  --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install apache-airflow --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install pyspark --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install apache-airflow-providers-amazon --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install vine --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install oauthlib --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install pyparser --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install snowflake --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install sshtunnel --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install requests_oauthlib --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install prompt_toolkit --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install slack_sdk   --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install rsa --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install apache-airflow-providers-common-compat --target=/opt/airflow/lib/python3.12/site-packages/
-RUN pip install websocket --target=/opt/airflow/lib/python3.12/site-packages/
+RUN pip install spotipy 
+RUN pip install pydantic 
+RUN pip install pandas  
+RUN pip install sqlalchemy  
+RUN pip install psycopg2-binary  
+RUN pip install apache-airflow-providers-apache-spark  
+RUN pip install apache-airflow 
+RUN pip install pyspark 
+RUN pip install apache-airflow-providers-amazon 
+RUN pip install vine 
+RUN pip install oauthlib 
+RUN pip install pyparser 
+RUN pip install snowflake 
+RUN pip install sshtunnel 
+RUN pip install requests_oauthlib 
+RUN pip install prompt_toolkit 
+RUN pip install slack_sdk   
+RUN pip install rsa 
+RUN pip install apache-airflow-providers-common-compat 
+RUN pip install websocket 

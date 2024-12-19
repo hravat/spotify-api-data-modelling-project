@@ -1,3 +1,6 @@
+### THIS FILE IS NO LONGER IN USE AS ALL DEPENCNCIES ARE IN DOCKER FILE
+### THEY ARE ADDED BY THE COMMAND docker-compose -f docker-compose.yml build 
+
 #!/bin/bash
 
 # Load environment variables from .env file if it exists
